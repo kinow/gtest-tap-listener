@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright (c) 2010 Bruno P. Kinoshita <http://www.kinoshita.eti.br>
+ * Copyright (c) 2011 Bruno P. Kinoshita <http://www.kinoshita.eti.br>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,8 +29,12 @@
 #define TAP_H_
 
 #include <list>
+#include <iostream>
+#include <map>
+#include <fstream>
 
 using namespace std;
+using namespace testing;
 
 namespace tap
 {
@@ -157,6 +161,99 @@ public:
 		return ss.str();
     }
 
+};
+
+class TapListener : public ::testing::EmptyTestEventListener
+{
+
+private:
+
+	map<string, tap::TestSet> testCaseTestResultMap;
+
+	const void addTapTestResult(const TestInfo& testInfo)
+	{
+		string testCaseName = testInfo.test_case_name();
+
+		tap::TestResult tapResult;
+		tapResult.setName(testInfo.name());
+		tapResult.setComment(testInfo.comment());
+		tapResult.setSkip(!testInfo.should_run());
+
+		const testing::TestResult *testResult = testInfo.result();
+
+		if ( testResult->HasFatalFailure() )
+		{
+			tapResult.setStatus("Bail out!");
+		}
+		else if ( testResult->Failed())
+		{
+			tapResult.setStatus("not ok");
+		}
+		else
+		{
+			tapResult.setStatus("ok");
+		}
+
+		this->addNewOrUpdate(testCaseName, tapResult);
+	}
+
+	const string getCommentOrDirective(string comment, bool skip)
+	{
+		stringstream commentText;
+
+		if ( skip )
+		{
+			commentText << " # SKIP " << comment;
+		}
+		else if ( !comment.empty() )
+		{
+			commentText << " # " << comment;
+		}
+
+		return commentText.str();
+	}
+
+	void addNewOrUpdate(string testCaseName, tap::TestResult testResult)
+	{
+		map<string, tap::TestSet>::iterator it = this->testCaseTestResultMap.find(testCaseName);
+		if ( it != this->testCaseTestResultMap.end() )
+		{
+			tap::TestSet testSet = it->second;
+			testSet.addTestResult(testResult);
+			this->testCaseTestResultMap[testCaseName] = testSet;
+		}
+		else
+		{
+			tap::TestSet testSet;
+			testSet.addTestResult(testResult);
+			this->testCaseTestResultMap[testCaseName] = testSet;
+		}
+	}
+
+public:
+
+	virtual void OnTestEnd(const TestInfo& testInfo)
+	{
+		//printf("%s %d - %s\n", testInfo.result()->Passed() ? "ok" : "not ok", this->testNumber, testInfo.name());
+		this->addTapTestResult(testInfo);
+	}
+
+	virtual void OnTestProgramEnd(const UnitTest& unit_test)
+	{
+		//--- Write the count and the word.
+		map<string, tap::TestSet>::const_iterator iter;
+		for (iter=this->testCaseTestResultMap.begin(); iter != this->testCaseTestResultMap.end(); ++iter)
+		{
+			tap::TestSet testSet = iter->second;
+			string tapStream = testSet.toString();
+			// cout << tapStream << endl;
+			ofstream tapFile;
+			const char* tapFileName = (iter->first + ".tap").c_str();
+			tapFile.open(tapFileName);
+			tapFile << tapStream;
+			tapFile.close();
+		}
+	}
 };
 
 }
