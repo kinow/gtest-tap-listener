@@ -1,0 +1,10 @@
+Changes for 0.1
+
+* Initial implementation of the TAP protocol with a GTest event listener
+* OK test status
+* NOT_OK test status
+* SKIP directive
+* Comments
+* Test Plan
+* One TAP file for each GTest Test Case
+* Output TAP file
