@@ -38,7 +38,6 @@
 
 using namespace std;
 
-#include "../helloworld/greeting.h"
 #include "gtest/gtest.h"
 
 TEST(HelloWorldTest, Equality) {
@@ -54,11 +53,4 @@ TEST(SampleTest, SomeTestThatFails) {
   EXPECT_TRUE( 2 == 10+1 );
 }
 
-TEST(HelloWorldTest, GreetingGetText) {
-  string hw_us ("Hello World!");
-  string hw_de ("Hallo Welt!");
-  Greeting* g = new Greeting();
-  EXPECT_TRUE( hw_us.compare(g->getText())==0 );
-  EXPECT_FALSE( hw_de.compare(g->getText())==0 );
-}
 
