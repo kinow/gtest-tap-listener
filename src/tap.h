@@ -206,6 +206,9 @@ public:
 		for (iter = this->testCaseTestResultMap.begin();
 				iter != this->testCaseTestResultMap.end(); ++iter) {
 			const tap::TestSet& testSet = iter->second;
+#ifdef GTEST_TAP_PRINT_TO_STDOUT
+			std::cout << testSet.toString();
+#else
 			std::string tapStream = testSet.toString();
 			// std::cout << tapStream << std::endl;
 			std::ofstream tapFile;
@@ -213,6 +216,7 @@ public:
 			tapFile.open(tapFileName);
 			tapFile << tapStream;
 			tapFile.close();
+#endif
 		}
 	}
 };
