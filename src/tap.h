@@ -167,7 +167,7 @@ private:
 		this->addNewOrUpdate(testCaseName, tapResult);
 	}
 
-	const std::string getCommentOrDirective(std::string comment, bool skip) {
+	std::string getCommentOrDirective(const std::string& comment, bool skip) {
 		std::stringstream commentText;
 
 		if (skip) {
