@@ -61,7 +61,7 @@ public:
 		return ss.str();
 	}
 
-	std::string getName() const {
+	const std::string& getName() const {
 		return name;
 	}
 
@@ -69,7 +69,7 @@ public:
 		return number;
 	}
 
-	std::string getStatus() const {
+	const std::string& getStatus() const {
 		return status;
 	}
 
@@ -77,11 +77,11 @@ public:
 		return skip;
 	}
 
-	void setComment(std::string comment) {
+	void setComment(const std::string& comment) {
 		this->comment = comment;
 	}
 
-	void setName(std::string name) {
+	void setName(const std::string& name) {
 		this->name = name;
 	}
 
@@ -89,7 +89,7 @@ public:
 		this->number = number;
 	}
 
-	void setStatus(std::string status) {
+	void setStatus(const std::string& status) {
 		this->status = status;
 	}
 
@@ -114,7 +114,7 @@ private:
 
 public:
 
-	std::list<TestResult> getTestResults() const {
+	const std::list<TestResult>& getTestResults() const {
 		return testResults;
 	}
 
@@ -179,7 +179,7 @@ private:
 		return commentText.str();
 	}
 
-	void addNewOrUpdate(std::string testCaseName, tap::TestResult testResult) {
+	void addNewOrUpdate(const std::string& testCaseName, tap::TestResult testResult) {
 		std::map<std::string, tap::TestSet>::iterator it =
 				this->testCaseTestResultMap.find(testCaseName);
 		if (it != this->testCaseTestResultMap.end()) {
@@ -205,7 +205,7 @@ public:
 		std::map<std::string, tap::TestSet>::const_iterator iter;
 		for (iter = this->testCaseTestResultMap.begin();
 				iter != this->testCaseTestResultMap.end(); ++iter) {
-			tap::TestSet testSet = iter->second;
+			const tap::TestSet& testSet = iter->second;
 			std::string tapStream = testSet.toString();
 			// std::cout << tapStream << std::endl;
 			std::ofstream tapFile;
