@@ -100,7 +100,7 @@ public:
 		this->skip = skip;
 	}
 
-	string toString() {
+	string toString() const {
 		stringstream ss;
 		ss << this->status << " " << this->number << " " << this->name << " "
 				<< this->getComment();
@@ -130,7 +130,7 @@ public:
 		return this->testResults.size();
 	}
 
-	string toString() {
+	string toString() const {
 		stringstream ss;
 		ss << "1.." << this->getNumberOfTests() << endl;
 		for (list<TestResult>::const_iterator ci = this->testResults.begin();
