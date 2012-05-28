@@ -33,9 +33,6 @@
 #include <map>
 #include <fstream>
 
-using namespace std;
-using namespace testing;
-
 namespace tap {
 
 class TestResult {
@@ -44,18 +41,18 @@ private:
 
 	int number;
 
-	string status;
+	std::string status;
 
-	string name;
+	std::string name;
 
-	string comment;
+	std::string comment;
 
 	bool skip;
 
 public:
 
-	string getComment() const {
-		stringstream ss;
+	std::string getComment() const {
+		std::stringstream ss;
 		if (this->skip) {
 			ss << "# SKIP " << this->comment;
 		} else if (!this->comment.empty()) {
@@ -64,7 +61,7 @@ public:
 		return ss.str();
 	}
 
-	string getName() const {
+	std::string getName() const {
 		return name;
 	}
 
@@ -72,7 +69,7 @@ public:
 		return number;
 	}
 
-	string getStatus() const {
+	std::string getStatus() const {
 		return status;
 	}
 
@@ -80,11 +77,11 @@ public:
 		return skip;
 	}
 
-	void setComment(string comment) {
+	void setComment(std::string comment) {
 		this->comment = comment;
 	}
 
-	void setName(string name) {
+	void setName(std::string name) {
 		this->name = name;
 	}
 
@@ -92,7 +89,7 @@ public:
 		this->number = number;
 	}
 
-	void setStatus(string status) {
+	void setStatus(std::string status) {
 		this->status = status;
 	}
 
@@ -100,8 +97,8 @@ public:
 		this->skip = skip;
 	}
 
-	string toString() const {
-		stringstream ss;
+	std::string toString() const {
+		std::stringstream ss;
 		ss << this->status << " " << this->number << " " << this->name << " "
 				<< this->getComment();
 		return ss.str();
@@ -113,11 +110,11 @@ class TestSet {
 
 private:
 
-	list<TestResult> testResults;
+	std::list<TestResult> testResults;
 
 public:
 
-	list<TestResult> getTestResults() const {
+	std::list<TestResult> getTestResults() const {
 		return testResults;
 	}
 
@@ -130,13 +127,13 @@ public:
 		return this->testResults.size();
 	}
 
-	string toString() const {
-		stringstream ss;
-		ss << "1.." << this->getNumberOfTests() << endl;
-		for (list<TestResult>::const_iterator ci = this->testResults.begin();
+	std::string toString() const {
+		std::stringstream ss;
+		ss << "1.." << this->getNumberOfTests() << std::endl;
+		for (std::list<TestResult>::const_iterator ci = this->testResults.begin();
 				ci != this->testResults.end(); ++ci) {
 			TestResult testResult = *ci;
-			ss << testResult.toString() << endl;
+			ss << testResult.toString() << std::endl;
 		}
 		return ss.str();
 	}
@@ -147,10 +144,10 @@ class TapListener: public ::testing::EmptyTestEventListener {
 
 private:
 
-	map<string, tap::TestSet> testCaseTestResultMap;
+	std::map<std::string, tap::TestSet> testCaseTestResultMap;
 
-	const void addTapTestResult(const TestInfo& testInfo) {
-		string testCaseName = testInfo.test_case_name();
+	const void addTapTestResult(const testing::TestInfo& testInfo) {
+		std::string testCaseName = testInfo.test_case_name();
 
 		tap::TestResult tapResult;
 		tapResult.setName(testInfo.name());
@@ -170,8 +167,8 @@ private:
 		this->addNewOrUpdate(testCaseName, tapResult);
 	}
 
-	const string getCommentOrDirective(string comment, bool skip) {
-		stringstream commentText;
+	const std::string getCommentOrDirective(std::string comment, bool skip) {
+		std::stringstream commentText;
 
 		if (skip) {
 			commentText << " # SKIP " << comment;
@@ -182,8 +179,8 @@ private:
 		return commentText.str();
 	}
 
-	void addNewOrUpdate(string testCaseName, tap::TestResult testResult) {
-		map<string, tap::TestSet>::iterator it =
+	void addNewOrUpdate(std::string testCaseName, tap::TestResult testResult) {
+		std::map<std::string, tap::TestSet>::iterator it =
 				this->testCaseTestResultMap.find(testCaseName);
 		if (it != this->testCaseTestResultMap.end()) {
 			tap::TestSet testSet = it->second;
@@ -198,20 +195,20 @@ private:
 
 public:
 
-	virtual void OnTestEnd(const TestInfo& testInfo) {
+	virtual void OnTestEnd(const testing::TestInfo& testInfo) {
 		//printf("%s %d - %s\n", testInfo.result()->Passed() ? "ok" : "not ok", this->testNumber, testInfo.name());
 		this->addTapTestResult(testInfo);
 	}
 
-	virtual void OnTestProgramEnd(const UnitTest& unit_test) {
+	virtual void OnTestProgramEnd(const testing::UnitTest& unit_test) {
 		//--- Write the count and the word.
-		map<string, tap::TestSet>::const_iterator iter;
+		std::map<std::string, tap::TestSet>::const_iterator iter;
 		for (iter = this->testCaseTestResultMap.begin();
 				iter != this->testCaseTestResultMap.end(); ++iter) {
 			tap::TestSet testSet = iter->second;
-			string tapStream = testSet.toString();
-			// cout << tapStream << endl;
-			ofstream tapFile;
+			std::string tapStream = testSet.toString();
+			// std::cout << tapStream << std::endl;
+			std::ofstream tapFile;
 			const char* tapFileName = (iter->first + ".tap").c_str();
 			tapFile.open(tapFileName);
 			tapFile << tapStream;
