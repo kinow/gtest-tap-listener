@@ -38,19 +38,19 @@ endif
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: gtest-tap-listener
+all: libgtest-tap-listener
 
 # Tool invocations
-gtest-tap-listener: $(OBJS) $(USER_OBJS)
+libgtest-tap-listener: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C++ Linker'
-	g++  -o "gtest-tap-listener" $(OBJS) $(USER_OBJS) $(LIBS)
+	g++ -shared -o "libgtest-tap-listener" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(OBJS)$(C++_DEPS)$(C_DEPS)$(CC_DEPS)$(CPP_DEPS)$(EXECUTABLES)$(CXX_DEPS)$(C_UPPER_DEPS) gtest-tap-listener
+	-$(RM) $(OBJS)$(C++_DEPS)$(C_DEPS)$(CC_DEPS)$(LIBRARIES)$(CPP_DEPS)$(CXX_DEPS)$(C_UPPER_DEPS) libgtest-tap-listener
 	-@echo ' '
 
 .PHONY: all clean dependents
