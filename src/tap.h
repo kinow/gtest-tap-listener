@@ -146,7 +146,7 @@ private:
 
 	std::map<std::string, tap::TestSet> testCaseTestResultMap;
 
-	const void addTapTestResult(const testing::TestInfo& testInfo) {
+	void addTapTestResult(const testing::TestInfo& testInfo) {
 		std::string testCaseName = testInfo.test_case_name();
 
 		tap::TestResult tapResult;
