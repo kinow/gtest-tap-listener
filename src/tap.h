@@ -209,12 +209,10 @@ public:
 #ifdef GTEST_TAP_PRINT_TO_STDOUT
 			std::cout << testSet.toString();
 #else
-			std::string tapStream = testSet.toString();
-			// std::cout << tapStream << std::endl;
 			std::ofstream tapFile;
 			const char* tapFileName = (iter->first + ".tap").c_str();
 			tapFile.open(tapFileName);
-			tapFile << tapStream;
+			tapFile << testSet.toString();
 			tapFile.close();
 #endif
 		}
