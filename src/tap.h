@@ -37,188 +37,174 @@ namespace tap {
 
 class TestResult {
 
-private:
+ private:
+  int number;
+  std::string status;
+  std::string name;
+  std::string comment;
+  bool skip;
 
-	int number;
+ public:
+  std::string getComment() const {
+    std::stringstream ss;
+    if (this->skip) {
+      ss << "# SKIP " << this->comment;
+    } else if (!this->comment.empty()) {
+      ss << "# " << this->comment;
+    }
+    return ss.str();
+  }
 
-	std::string status;
+  const std::string& getName() const {
+    return name;
+  }
 
-	std::string name;
+  int getNumber() const {
+    return number;
+  }
 
-	std::string comment;
+  const std::string& getStatus() const {
+    return status;
+  }
 
-	bool skip;
+  bool getSkip() const {
+    return skip;
+  }
 
-public:
+  void setComment(const std::string& comment) {
+    this->comment = comment;
+  }
 
-	std::string getComment() const {
-		std::stringstream ss;
-		if (this->skip) {
-			ss << "# SKIP " << this->comment;
-		} else if (!this->comment.empty()) {
-			ss << "# " << this->comment;
-		}
-		return ss.str();
-	}
+  void setName(const std::string& name) {
+    this->name = name;
+  }
 
-	const std::string& getName() const {
-		return name;
-	}
+  void setNumber(int number) {
+    this->number = number;
+  }
 
-	int getNumber() const {
-		return number;
-	}
+  void setStatus(const std::string& status) {
+    this->status = status;
+  }
 
-	const std::string& getStatus() const {
-		return status;
-	}
+  void setSkip(bool skip) {
+    this->skip = skip;
+  }
 
-	bool getSkip() const {
-		return skip;
-	}
-
-	void setComment(const std::string& comment) {
-		this->comment = comment;
-	}
-
-	void setName(const std::string& name) {
-		this->name = name;
-	}
-
-	void setNumber(int number) {
-		this->number = number;
-	}
-
-	void setStatus(const std::string& status) {
-		this->status = status;
-	}
-
-	void setSkip(bool skip) {
-		this->skip = skip;
-	}
-
-	std::string toString() const {
-		std::stringstream ss;
-		ss << this->status << " " << this->number << " " << this->name << " "
-				<< this->getComment();
-		return ss.str();
-	}
-
+  std::string toString() const {
+    std::stringstream ss;
+    ss << this->status << " " << this->number << " " << this->name << " "
+       << this->getComment();
+    return ss.str();
+  }
 };
 
 class TestSet {
 
-private:
+ private:
+  std::list<TestResult> testResults;
+  
+ public:
+  const std::list<TestResult>& getTestResults() const {
+    return testResults;
+  }
 
-	std::list<TestResult> testResults;
+  void addTestResult(TestResult& testResult) {
+    testResult.setNumber((this->getNumberOfTests() + 1));
+    this->testResults.push_back(testResult);
+  }
 
-public:
+  int getNumberOfTests() const {
+    return this->testResults.size();
+  }
 
-	const std::list<TestResult>& getTestResults() const {
-		return testResults;
-	}
-
-	void addTestResult(TestResult& testResult) {
-		testResult.setNumber((this->getNumberOfTests() + 1));
-		this->testResults.push_back(testResult);
-	}
-
-	int getNumberOfTests() const {
-		return this->testResults.size();
-	}
-
-	std::string toString() const {
-		std::stringstream ss;
-		ss << "1.." << this->getNumberOfTests() << std::endl;
-		for (std::list<TestResult>::const_iterator ci = this->testResults.begin();
-				ci != this->testResults.end(); ++ci) {
-			TestResult testResult = *ci;
-			ss << testResult.toString() << std::endl;
-		}
-		return ss.str();
-	}
-
+  std::string toString() const {
+    std::stringstream ss;
+    ss << "1.." << this->getNumberOfTests() << std::endl;
+    for (std::list<TestResult>::const_iterator ci = this->testResults.begin();
+	 ci != this->testResults.end(); ++ci) {
+      TestResult testResult = *ci;
+      ss << testResult.toString() << std::endl;
+    }
+    return ss.str();
+  }
 };
 
 class TapListener: public ::testing::EmptyTestEventListener {
 
-private:
+ private:
+  std::map<std::string, tap::TestSet> testCaseTestResultMap;
 
-	std::map<std::string, tap::TestSet> testCaseTestResultMap;
+  void addTapTestResult(const testing::TestInfo& testInfo) {
+    tap::TestResult tapResult;
+    tapResult.setName(testInfo.name());
+    //tapResult.setComment(testInfo.comment());
+    tapResult.setSkip(!testInfo.should_run());
 
-	void addTapTestResult(const testing::TestInfo& testInfo) {
-		std::string testCaseName = testInfo.test_case_name();
+    const testing::TestResult *testResult = testInfo.result();
+    
+    if (testResult->HasFatalFailure()) {
+      tapResult.setStatus("Bail out!");
+    } else if (testResult->Failed()) {
+      tapResult.setStatus("not ok");
+    } else {
+      tapResult.setStatus("ok");
+    }
 
-		tap::TestResult tapResult;
-		tapResult.setName(testInfo.name());
-		//tapResult.setComment(testInfo.comment());
-		tapResult.setSkip(!testInfo.should_run());
+    this->addNewOrUpdate(testInfo.test_case_name(), tapResult);
+  }
 
-		const testing::TestResult *testResult = testInfo.result();
+  std::string getCommentOrDirective(const std::string& comment, bool skip) {
+    std::stringstream commentText;
 
-		if (testResult->HasFatalFailure()) {
-			tapResult.setStatus("Bail out!");
-		} else if (testResult->Failed()) {
-			tapResult.setStatus("not ok");
-		} else {
-			tapResult.setStatus("ok");
-		}
+    if (skip) {
+      commentText << " # SKIP " << comment;
+    } else if (!comment.empty()) {
+      commentText << " # " << comment;
+    }
 
-		this->addNewOrUpdate(testCaseName, tapResult);
-	}
+    return commentText.str();
+  }
 
-	std::string getCommentOrDirective(const std::string& comment, bool skip) {
-		std::stringstream commentText;
-
-		if (skip) {
-			commentText << " # SKIP " << comment;
-		} else if (!comment.empty()) {
-			commentText << " # " << comment;
-		}
-
-		return commentText.str();
-	}
-
-	void addNewOrUpdate(const std::string& testCaseName, tap::TestResult testResult) {
-		std::map<std::string, tap::TestSet>::iterator it =
-				this->testCaseTestResultMap.find(testCaseName);
-		if (it != this->testCaseTestResultMap.end()) {
-			tap::TestSet testSet = it->second;
-			testSet.addTestResult(testResult);
-			this->testCaseTestResultMap[testCaseName] = testSet;
-		} else {
-			tap::TestSet testSet;
-			testSet.addTestResult(testResult);
-			this->testCaseTestResultMap[testCaseName] = testSet;
-		}
-	}
+  void addNewOrUpdate(const std::string& testCaseName, tap::TestResult testResult) {
+    std::map<std::string, tap::TestSet>::const_iterator ci =
+      this->testCaseTestResultMap.find(testCaseName);
+    if (ci != this->testCaseTestResultMap.end()) {
+      tap::TestSet testSet = ci->second;
+      testSet.addTestResult(testResult);
+      this->testCaseTestResultMap[testCaseName] = testSet;
+    } else {
+      tap::TestSet testSet;
+      testSet.addTestResult(testResult);
+      this->testCaseTestResultMap[testCaseName] = testSet;
+    }
+  }
 
 public:
+  virtual void OnTestEnd(const testing::TestInfo& testInfo) {
+    //printf("%s %d - %s\n", testInfo.result()->Passed() ? "ok" : "not ok", this->testNumber, testInfo.name());
+    this->addTapTestResult(testInfo);
+  }
 
-	virtual void OnTestEnd(const testing::TestInfo& testInfo) {
-		//printf("%s %d - %s\n", testInfo.result()->Passed() ? "ok" : "not ok", this->testNumber, testInfo.name());
-		this->addTapTestResult(testInfo);
-	}
-
-	virtual void OnTestProgramEnd(const testing::UnitTest& unit_test) {
-		//--- Write the count and the word.
-		std::map<std::string, tap::TestSet>::const_iterator iter;
-		for (iter = this->testCaseTestResultMap.begin();
-				iter != this->testCaseTestResultMap.end(); ++iter) {
-			const tap::TestSet& testSet = iter->second;
+  virtual void OnTestProgramEnd(const testing::UnitTest& unit_test) {
+    //--- Write the count and the word.
+    std::map<std::string, tap::TestSet>::const_iterator ci;
+    for (ci = this->testCaseTestResultMap.begin();
+	 ci != this->testCaseTestResultMap.end(); ++ci) {
+      const tap::TestSet& testSet = ci->second;
 #ifdef GTEST_TAP_PRINT_TO_STDOUT
-			std::cout << testSet.toString();
+      std::cout << testSet.toString();
 #else
-			std::ofstream tapFile;
-			const char* tapFileName = (iter->first + ".tap").c_str();
-			tapFile.open(tapFileName);
-			tapFile << testSet.toString();
-			tapFile.close();
+      std::ofstream tapFile;
+      const char* tapFileName = (ci->first + ".tap").c_str();
+      tapFile.open(tapFileName);
+      tapFile << testSet.toString();
+      tapFile.close();
 #endif
-		}
-	}
+    }
+  }
 };
 
-}
+} // namespace tap
 
-#endif /* TAP_H_ */
+#endif // TAP_H_ 
