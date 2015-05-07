@@ -103,7 +103,7 @@ class TestSet {
 
  private:
   std::list<TestResult> testResults;
-  
+
  public:
   const std::list<TestResult>& getTestResults() const {
     return testResults;
@@ -142,7 +142,7 @@ class TapListener: public ::testing::EmptyTestEventListener {
     tapResult.setSkip(!testInfo.should_run());
 
     const testing::TestResult *testResult = testInfo.result();
-    
+
     if (testResult->HasFatalFailure()) {
       tapResult.setStatus("Bail out!");
     } else if (testResult->Failed()) {
@@ -193,6 +193,7 @@ public:
 	 ci != this->testCaseTestResultMap.end(); ++ci) {
       const tap::TestSet& testSet = ci->second;
 #ifdef GTEST_TAP_PRINT_TO_STDOUT
+      std::cout << "TAP version 13" << std::endl;
       std::cout << testSet.toString();
 #else
       std::ofstream tapFile;
@@ -207,4 +208,4 @@ public:
 
 } // namespace tap
 
-#endif // TAP_H_ 
+#endif // TAP_H_
