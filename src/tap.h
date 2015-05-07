@@ -33,6 +33,8 @@
 #include <map>
 #include <fstream>
 
+#include <boost/algorithm/string/replace.hpp>
+
 namespace tap {
 
 class TestResult {
@@ -92,9 +94,14 @@ class TestResult {
   }
 
   std::string toString() const {
-    std::stringstream ss;
-    ss << this->status << " " << this->number << " " << this->name << " "
-       << this->getComment();
+    ss << this->status << " " << this->number << " " << this->name;
+    std::string comment_text = this->getComment();
+    if (!comment_text.empty()) {
+      ss << std::endl
+       << "# Diagnostic" << std::endl
+       << "  ---" << std::endl
+       << "  " << boost::replace_all_copy(this->getComment(), "\n", "\n  ");
+    }
     return ss.str();
   }
 };
@@ -138,15 +145,15 @@ class TapListener: public ::testing::EmptyTestEventListener {
   void addTapTestResult(const testing::TestInfo& testInfo) {
     tap::TestResult tapResult;
     tapResult.setName(testInfo.name());
-    //tapResult.setComment(testInfo.comment());
     tapResult.setSkip(!testInfo.should_run());
 
     const testing::TestResult *testResult = testInfo.result();
-
+    int number = testResult->total_part_count();
     if (testResult->HasFatalFailure()) {
       tapResult.setStatus("Bail out!");
     } else if (testResult->Failed()) {
       tapResult.setStatus("not ok");
+      tapResult.setComment(testResult->GetTestPartResult(number-1).summary());
     } else {
       tapResult.setStatus("ok");
     }
