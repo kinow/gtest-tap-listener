@@ -32,10 +32,37 @@
 #include <iostream>
 #include <map>
 #include <fstream>
-
-#include <boost/algorithm/string/replace.hpp>
+#include <string>
 
 namespace tap {
+
+// based on http://stackoverflow.com/a/7724536/831180
+std::string replace_all_copy(
+  std::string const& original,
+  std::string const& before,
+  std::string const& after
+) {
+  using namespace std;
+
+  if (before == after) return string(original);
+
+  string retval;
+  if (before.length() == after.length()) retval.reserve(original.size());
+
+  auto end = original.end();
+  auto current = original.begin();
+  auto next =
+    search(current, end, before.begin(), before.end());
+
+  while ( next != end ) {
+    retval.append( current, next );
+    retval.append( after );
+    current = next + before.size();
+    next = search(current, end, before.begin(), before.end());
+  }
+  retval.append( current, next );
+  return retval;
+}
 
 class TestResult {
 
@@ -100,7 +127,7 @@ class TestResult {
       ss << std::endl
        << "# Diagnostic" << std::endl
        << "  ---" << std::endl
-       << "  " << boost::replace_all_copy(this->getComment(), "\n", "\n  ");
+       << "  " << replace_all_copy(this->getComment(), "\n", "\n  ");
     }
     return ss.str();
   }
