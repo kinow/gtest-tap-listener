@@ -123,6 +123,7 @@ class TestResult {
   std::string toString() const {
     std::stringstream ss;
     ss << this->status << " " << this->number << " " << this->name;
+#ifdef GTEST_TAP_13_DIAGNOSTIC
     std::string comment_text = this->getComment();
     if (!comment_text.empty()) {
       ss << std::endl
@@ -130,6 +131,7 @@ class TestResult {
        << "  ---" << std::endl
        << "  " << replace_all_copy(this->getComment(), "\n", "\n  ");
     }
+#endif
     return ss.str();
   }
 };
