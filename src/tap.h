@@ -121,6 +121,7 @@ class TestResult {
   }
 
   std::string toString() const {
+    std::stringstream ss;
     ss << this->status << " " << this->number << " " << this->name;
     std::string comment_text = this->getComment();
     if (!comment_text.empty()) {
