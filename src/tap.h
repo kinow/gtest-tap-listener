@@ -32,8 +32,37 @@
 #include <iostream>
 #include <map>
 #include <fstream>
+#include <string>
 
 namespace tap {
+
+// based on http://stackoverflow.com/a/7724536/831180
+std::string replace_all_copy(
+  std::string const& original,
+  std::string const& before,
+  std::string const& after
+) {
+  using namespace std;
+
+  if (before == after) return string(original);
+
+  string retval;
+  if (before.length() == after.length()) retval.reserve(original.size());
+
+  auto end = original.end();
+  auto current = original.begin();
+  auto next =
+    search(current, end, before.begin(), before.end());
+
+  while ( next != end ) {
+    retval.append( current, next );
+    retval.append( after );
+    current = next + before.size();
+    next = search(current, end, before.begin(), before.end());
+  }
+  retval.append( current, next );
+  return retval;
+}
 
 class TestResult {
 
@@ -93,8 +122,16 @@ class TestResult {
 
   std::string toString() const {
     std::stringstream ss;
-    ss << this->status << " " << this->number << " " << this->name << " "
-       << this->getComment();
+    ss << this->status << " " << this->number << " " << this->name;
+#ifdef GTEST_TAP_13_DIAGNOSTIC
+    std::string comment_text = this->getComment();
+    if (!comment_text.empty()) {
+      ss << std::endl
+       << "# Diagnostic" << std::endl
+       << "  ---" << std::endl
+       << "  " << replace_all_copy(this->getComment(), "\n", "\n  ");
+    }
+#endif
     return ss.str();
   }
 };
@@ -103,7 +140,7 @@ class TestSet {
 
  private:
   std::list<TestResult> testResults;
-  
+
  public:
   const std::list<TestResult>& getTestResults() const {
     return testResults;
@@ -138,15 +175,15 @@ class TapListener: public ::testing::EmptyTestEventListener {
   void addTapTestResult(const testing::TestInfo& testInfo) {
     tap::TestResult tapResult;
     tapResult.setName(testInfo.name());
-    //tapResult.setComment(testInfo.comment());
     tapResult.setSkip(!testInfo.should_run());
 
     const testing::TestResult *testResult = testInfo.result();
-    
+    int number = testResult->total_part_count();
     if (testResult->HasFatalFailure()) {
       tapResult.setStatus("Bail out!");
     } else if (testResult->Failed()) {
       tapResult.setStatus("not ok");
+      tapResult.setComment(testResult->GetTestPartResult(number-1).summary());
     } else {
       tapResult.setStatus("ok");
     }
@@ -193,6 +230,7 @@ public:
 	 ci != this->testCaseTestResultMap.end(); ++ci) {
       const tap::TestSet& testSet = ci->second;
 #ifdef GTEST_TAP_PRINT_TO_STDOUT
+      std::cout << "TAP version 13" << std::endl;
       std::cout << testSet.toString();
 #else
       std::ofstream tapFile;
@@ -207,4 +245,4 @@ public:
 
 } // namespace tap
 
-#endif // TAP_H_ 
+#endif // TAP_H_
