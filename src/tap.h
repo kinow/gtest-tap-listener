@@ -33,6 +33,7 @@
 #include <map>
 #include <fstream>
 #include <string>
+#include <algorithm>
 
 namespace tap {
 
