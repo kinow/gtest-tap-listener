@@ -28,6 +28,7 @@
 #ifndef TAP_H_
 #define TAP_H_
 
+#include <cstdlib>
 #include <list>
 #include <iostream>
 #include <map>
@@ -228,15 +229,19 @@ public:
     //--- Write the count and the word.
     std::map<std::string, tap::TestSet>::const_iterator ci;
     for (ci = this->testCaseTestResultMap.begin();
-	 ci != this->testCaseTestResultMap.end(); ++ci) {
+     ci != this->testCaseTestResultMap.end(); ++ci) {
       const tap::TestSet& testSet = ci->second;
 #ifdef GTEST_TAP_PRINT_TO_STDOUT
       std::cout << "TAP version 13" << std::endl;
       std::cout << testSet.toString();
 #else
       std::ofstream tapFile;
-      const char* tapFileName = (ci->first + ".tap").c_str();
-      tapFile.open(tapFileName);
+      std::stringstream tapFileName;
+      if (const char* prefix = std::getenv("GTEST_TAP_FILENAME_PREFIX"))
+        tapFileName << prefix;
+      tapFileName << ci->first;
+      tapFileName << ".tap";
+      tapFile.open(tapFileName.str().c_str());
       tapFile << testSet.toString();
       tapFile.close();
 #endif
