@@ -235,8 +235,8 @@ public:
       std::cout << testSet.toString();
 #else
       std::ofstream tapFile;
-      const char* tapFileName = (ci->first + ".tap").c_str();
-      tapFile.open(tapFileName);
+      std::string tapFileName = ci->first + ".tap";
+      tapFile.open(tapFileName.c_str());
       tapFile << testSet.toString();
       tapFile.close();
 #endif
