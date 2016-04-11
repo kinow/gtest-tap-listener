@@ -101,24 +101,24 @@ class TestResult {
     return skip;
   }
 
-  void setComment(const std::string& comment) {
-    this->comment = comment;
+  void setComment(const std::string& _comment) {
+    this->comment = _comment;
   }
 
-  void setName(const std::string& name) {
-    this->name = name;
+  void setName(const std::string& _name) {
+    this->name = _name;
   }
 
-  void setNumber(int number) {
-    this->number = number;
+  void setNumber(int _number) {
+    this->number = _number;
   }
 
-  void setStatus(const std::string& status) {
-    this->status = status;
+  void setStatus(const std::string& _status) {
+    this->status = _status;
   }
 
-  void setSkip(bool skip) {
-    this->skip = skip;
+  void setSkip(bool _skip) {
+    this->skip = _skip;
   }
 
   std::string toString() const {
@@ -224,7 +224,7 @@ public:
     this->addTapTestResult(testInfo);
   }
 
-  virtual void OnTestProgramEnd(const testing::UnitTest& unit_test) {
+  virtual void OnTestProgramEnd(const testing::UnitTest& /* unit_test */) {
     //--- Write the count and the word.
     std::map<std::string, tap::TestSet>::const_iterator ci;
     for (ci = this->testCaseTestResultMap.begin();
