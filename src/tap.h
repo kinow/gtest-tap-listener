@@ -54,13 +54,13 @@ std::string replace_all_copy(
   auto end = original.end();
   auto current = original.begin();
   auto next =
-    search(current, end, before.begin(), before.end());
+    std::search(current, end, before.begin(), before.end());
 
   while ( next != end ) {
     retval.append( current, next );
     retval.append( after );
     current = next + before.size();
-    next = search(current, end, before.begin(), before.end());
+    next = std::search(current, end, before.begin(), before.end());
   }
   retval.append( current, next );
   return retval;
