@@ -2,6 +2,7 @@
 
 - Added extensions to project files (e.g. LICENSE.md), preferring Markdown where possible (for GitHub)
 - Updated Changelog to include existing releases
+- Added CMake configuration
 
 ## 0.6 (07/05/2016)
 
