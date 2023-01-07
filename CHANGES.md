@@ -1,3 +1,8 @@
+## 0.7 (??/??/2023)
+
+- Added extensions to project files (e.g. LICENSE.md), preferring Markdown where possible (for GitHub)
+- Updated Changelog to include existing releases
+
 ## 0.6 (07/05/2016)
 
 - Added `cstdlib`
