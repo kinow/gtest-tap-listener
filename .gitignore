@@ -2,9 +2,11 @@
 .classpath
 .settings
 .cproject
-target
-bin
-Release
-Debug
-build
+target/
+bin/
+Release/
+Debug/
+build/
+cmake-build-*/
+
 
