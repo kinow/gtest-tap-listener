@@ -18,7 +18,6 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest ]
-        java: [ 8, 11, 17 ]
         experimental: [false]
     steps:
       - uses: actions/checkout@v3.3.0
