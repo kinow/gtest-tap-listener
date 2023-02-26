@@ -1,5 +1,15 @@
+/**
+ * @file
+ *
+ * @author Oliver Merkel
+ *
+ * @ingroup gtest sample hello world
+ *
+ * @brief Small implementation testing a Greeting class holding a text for a hello world.
+ */
+
 /*
- * Copyright (c) <2011> <Bruno P. Kinoshita - http://www.kinoshita.eti.br>.
+ * Copyright (c) 2011 Oliver Merkel, Merkel dot Oliver at web dot de.
  *
  * The MIT License
  *
@@ -20,19 +30,37 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ *
+ * $Id$
  */
 
-#include "gtest/gtest.h"
-#include "../../src/tap.h"
+#include <string>
 
-GTEST_API_ int main(int argc, char **argv) {
-  testing::InitGoogleTest(&argc, argv);
+using namespace std;
 
-  testing::TestEventListeners& listeners = testing::UnitTest::GetInstance()->listeners();
+#include <gtest/gtest.h>
+#include "tap.h"
 
-  // Delete the default listener
-  delete listeners.Release(listeners.default_result_printer());
-  listeners.Append(new tap::TapListener());
-  return RUN_ALL_TESTS();
+TEST(HelloWorldTest, Equality) {
+  EXPECT_EQ(1, 1);
+  EXPECT_TRUE( 1 == 1 );
 }
 
+TEST(HelloWorldTest, SomeTest) {
+  EXPECT_TRUE( 2 == 1+1 );
+}
+
+TEST(SampleTest, SomeTestThatFails) {
+  EXPECT_TRUE( 2 == 10+1 );
+}
+
+GTEST_API_ int main(int argc, char **argv) {
+    testing::InitGoogleTest(&argc, argv);
+
+    testing::TestEventListeners& listeners = testing::UnitTest::GetInstance()->listeners();
+
+    // Delete the default listener
+    delete listeners.Release(listeners.default_result_printer());
+    listeners.Append(new tap::TapListener());
+    return RUN_ALL_TESTS();
+}

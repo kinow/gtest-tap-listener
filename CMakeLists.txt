@@ -1,16 +1,31 @@
+# NOTE: This file was added in order to build it with GH Actions, and in an
+#       effort to have an initial CMake setup. Any community help to improve
+#       it and make it easier for external projects to use it would be
+#       appreciated.
+#       This CMakeLists.txt and the one in the examples/cmake directory were
+#       both created using this excellent Git repository as reference:
+#       <https://github.com/pr0g/cmake-examples/>.
+
 cmake_minimum_required(VERSION 3.5)
 
-project(GTestTapListener VERSION 0.7 LANGUAGES CXX)
+project(gtest-tap-listener VERSION 0.7 LANGUAGES CXX)
+
+# Define GNU standard installation directories. Introduces variables:
+# * CMAKE_INSTALL_LIBDIR
+# * CMAKE_INSTALL_BINDIR
+# * CMAKE_INSTALL_INCLUDEDIR
+include(GNUInstallDirs)
 
 set(GTEST_TAP_LISTENER_VERSION 0.7)
 
 # GoogleTest requires at least C++14
 set(CMAKE_CXX_STANDARD 14)
-
 set(CMAKE_CXX_FLAGS "-fprofile-arcs -ftest-coverage")
 
 # To silence a FetchContent_Declare warning
-cmake_policy(SET CMP0135 NEW)
+if (POLICY CMP0135)
+  cmake_policy(SET CMP0135 NEW)
+endif()
 
 include(FetchContent)
 FetchContent_Declare(
@@ -20,9 +35,43 @@ FetchContent_Declare(
 
 # For Windows: Prevent overriding the parent project's compiler/linker settings
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
 
-add_library(${PROJECT_NAME} INTERFACE "${PROJECT_SOURCE_DIR}/src")
-target_sources(${PROJECT_NAME} INTERFACE "${PROJECT_SOURCE_DIR}/src/tap.h")
-target_compile_definitions(${PROJECT_NAME} INTERFACE "${PROJECT_SOURCE_DIR}/src/tap.h")
-target_include_directories(${PROJECT_NAME} INTERFACE "${PROJECT_SOURCE_DIR}/src")
-install(DIRECTORY "${PROJECT_SOURCE_DIR}/src" DESTINATION include)
+enable_testing()
+
+add_library(${PROJECT_NAME} INTERFACE)
+
+# Source: https://github.com/pr0g/cmake-examples/blob/main/examples/core/header-only/library/CMakeLists.txt
+target_include_directories(
+  ${PROJECT_NAME}
+  INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+
+set_target_properties(
+  ${PROJECT_NAME}
+  PROPERTIES
+  VERSION
+  ${PROJECT_VERSION}
+)
+
+install(
+  TARGETS
+  ${PROJECT_NAME}
+  EXPORT
+  ${PROJECT_NAME}-config
+)
+
+install(
+  EXPORT ${PROJECT_NAME}-config
+  NAMESPACE ${PROJECT_NAME}::
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
+
+install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/include/${PROJECT_NAME}/
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
+
+export(
+  TARGETS
+  ${PROJECT_NAME}
+  FILE
+  ${PROJECT_NAME}-config.cmake
+)

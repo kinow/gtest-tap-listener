@@ -18,7 +18,7 @@ compile: $(NAME).o
 clean:
 	rm -rf *.o $(NAME) *.tap *.gcno *.gcda *.xml
 	
-$(NAME).o: src/gtest_main.cc src/gtest_testHelloWorld.cc
+$(NAME).o: src/gtest_main.cc src
 	$(CC) $(CFLAGS) src/gtest_main.cc src/gtest_testHelloWorld.cc $(LIBS) -lpthread -lgcov -o $(NAME)
 	
 run: clean compile
