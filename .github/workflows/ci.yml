@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+    pull_request:
+      - master
+    workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.experimental }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest ]
+        java: [ 8, 11, 17 ]
+        experimental: [false]
+    steps:
+      - uses: actions/checkout@v3.3.0
+        with:
+          persist-credentials: false
+      - name: Build with CMake
+        run: |
+          cmake -S . -B build
+          cmake --build build
+          ls -lah ./build/
+  build_examples:
+    steps:
+      - uses: actions/checkout@v3.3.0
+        with:
+          persist-credentials: false
+      - name: Build example with CMake
+        run: |
+          cd examples/cmake/
+          cmake -S . -B build
+          cmake --build build
+          ls -lah ./build/
+          cd ./build
+          ./gtest-tap-listener-example-cmake | grep "not ok 1 SomeTestThatFails"

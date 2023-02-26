@@ -27,7 +27,8 @@ FetchContent_Declare(
   SOURCE_DIR "${PROJECT_SOURCE_DIR}/../../"
 )
 FetchContent_MakeAvailable(gtest-tap-listener)
-#find_package(gtest-tap-listener REQUIRED CONFIG)
+
+add_definitions(-DGTEST_TAP_PRINT_TO_STDOUT)
 
 add_executable(${PROJECT_NAME})
 
