@@ -1,8 +1,13 @@
-## 0.7 (??/??/2023)
+## 0.7 (26/02/2023)
 
-- Added extensions to project files (e.g. LICENSE.md), preferring Markdown where possible (for GitHub)
-- Updated Changelog to include existing releases
-- Added CMake configuration
+- Added extensions to project files (e.g. LICENSE.md), preferring Markdown where possible (for GitHub).
+- Updated Changelog to include existing releases.
+- Added initial CMake configuration (probably needs some more working - pull requests are welcome!).
+- Added `CONTRIBUTING.md`.
+- Made all GitHub documentation files Markdown.
+- Renamed `samples` to `examples`
+- Added CI with GitHub Actions (builds main library/interface and also an example executable).
+- Added more documentation (including definitions/directives).
 
 ## 0.6 (07/05/2016)
 
