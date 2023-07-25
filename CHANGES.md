@@ -1,3 +1,7 @@
+## 0.8 (??/??/202?)
+
+- fix(tap.h): Adding ' ...' to correctly end a YAML block #19 thanks @Samxamnom
+
 ## 0.7 (26/02/2023)
 
 - Added extensions to project files (e.g. LICENSE.md), preferring Markdown where possible (for GitHub).
