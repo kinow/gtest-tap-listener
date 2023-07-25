@@ -131,7 +131,8 @@ class TestResult {
       ss << std::endl
        << "# Diagnostic" << std::endl
        << "  ---" << std::endl
-       << "  " << replace_all_copy(this->getComment(), "\n", "\n  ");
+       << "  " << replace_all_copy(this->getComment(), "\n", "\n  ") << std::endl
+       << "  ...";
     }
 #endif
     return ss.str();
